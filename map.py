@@ -1,6 +1,7 @@
 from utils import randbool
 from utils import randcell
 from utils import randcell2
+from main import game_over
 
 # 0 - поле
 # 1 - дерево
@@ -12,6 +13,7 @@ from utils import randcell2
 CELL_TYPES = '🟩🌲🌊🏥🛒🔥'
 TREE_BONUS = 100
 UPGRADE_COST = 200
+LIFE_COST = 300
 
 class Map:
 
@@ -23,21 +25,26 @@ class Map:
         self.generate_river(10)
         self.generate_river(10)
         self.generate_upgrade_shop()
+        self.generate_hospital()
 
     def check_bounds(self, x, y):
         if (x < 0 or y < 0 or x >= self.h or y >= self.w):
             return False
         return True
 
-    def print_map(self, helico):
+    def print_map(self, helico, clouds):
         print('⬛' * (self.w + 2))
         for ri in range(self.h):
             print('⬛', end='')
             for ci in range(self.w):
                 cell = self.cells[ri][ci]
-                if (helico.x == ri and helico.y == ci):
+                if (clouds.cells[ri][ci] == 1):
+                    print('☁️', end='')
+                elif (clouds.cells[ri][ci] == 2):
+                    print('⚡', end='')
+                elif (helico.x == ri and helico.y == ci):
                     print('🚁', end='')
-                elif (cell >= 0 and cell < len(CELL_TYPES)):
+                else (cell >= 0 and cell < len(CELL_TYPES)):
                     print(CELL_TYPES[cell], end='')
             print('⬛')
         print('⬛' * (self.w + 2))
@@ -66,6 +73,14 @@ class Map:
         cx, cy = c[0], c[1]
         self.cells[cx][cy] = 4
 
+    def generate_hospital(self):
+        c = randcell(self.w, self.h)
+        cx, cy = c[0], c[1]
+        if self.cells[cx][cy] != 4:
+            self.cells[cx][cy] = 3
+        else:
+            self.generate_hospital()
+
     def generate_tree(self):
         c = randcell(self.w, self.h)
         cx, cy = c[0], c[1]
@@ -89,8 +104,9 @@ class Map:
             self.add_fire()
 
 
-    def process_helicopter(self, helico):
+    def process_helicopter(self, helico, clouds):
         c = self.cells[helico.x][helico.y]
+        d = self.cells[helico.x][helico.y]
         if (c == 2):
             helico.tank = helico.mxtank
         elif (c == 5 and helico.tank > 0):
@@ -101,4 +117,12 @@ class Map:
             helico.mxtank += 1
             helico.score -= UPGRADE_COST
 
+        elif (c == 3 and helico.score >= LIFE_COST):
+            helico.lives += 10
+            helico.score -= LIFE_COST
+
+        elif (d == 2):
+            helico.lives -= 1
+            if (helico.lives == 0):
+                helico.game_over()
 
