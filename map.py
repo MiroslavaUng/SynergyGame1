@@ -126,3 +126,6 @@ class Map:
             if (helico.lives == 0):
                 helico.game_over()
 
+    def export_data(self):
+        self.cells = data['cells'] or [[0 for i in range(self.w)] for j in range(self.h)]
+
