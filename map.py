@@ -1,7 +1,7 @@
 from utils import randbool
 from utils import randcell
 from utils import randcell2
-from main import game_over
+# from helicopter import game_over
 
 # 0 - поле
 # 1 - дерево
@@ -27,6 +27,7 @@ class Map:
         self.generate_upgrade_shop()
         self.generate_hospital()
 
+
     def check_bounds(self, x, y):
         if (x < 0 or y < 0 or x >= self.h or y >= self.w):
             return False
@@ -39,12 +40,12 @@ class Map:
             for ci in range(self.w):
                 cell = self.cells[ri][ci]
                 if (clouds.cells[ri][ci] == 1):
-                    print('☁️', end='')
+                    print('⚪', end='')
                 elif (clouds.cells[ri][ci] == 2):
-                    print('⚡', end='')
+                    print('🔴', end='')
                 elif (helico.x == ri and helico.y == ci):
                     print('🚁', end='')
-                else (cell >= 0 and cell < len(CELL_TYPES)):
+                elif (cell >= 0 and cell < len(CELL_TYPES)):
                     print(CELL_TYPES[cell], end='')
             print('⬛')
         print('⬛' * (self.w + 2))
@@ -127,5 +128,8 @@ class Map:
                 helico.game_over()
 
     def export_data(self):
+        return {'cells': self.cells}
+
+    def import_data(self, data):
         self.cells = data['cells'] or [[0 for i in range(self.w)] for j in range(self.h)]
 
